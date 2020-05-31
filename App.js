@@ -10,10 +10,15 @@ import {
   TextInput,
   Button,
   KeyboardAvoidingView,
+  AsyncStorage,
 } from 'react-native';
 
+// 実行するOSによってpaddingTopの値を調整
 const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight;
 
+const TODO_KEY = '@todoapp.todo';
+
+// TODO表示用クラス
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -24,20 +29,49 @@ export default class App extends React.Component {
     };
   }
 
+  componentDidMount() {
+    this.fetchLocalStorageTodo();
+  }
+
+  fetchLocalStorageTodo = async () => {
+    try {
+      const todoString = await AsyncStorage.getItem(TODO_KEY);
+      console.log(`todo文字列 ${todoString}`);
+      if (todoString) {
+        const todo = JSON.parse(todoString);
+        const currentIndex = todo.length;
+        this.setState({todo, currentIndex});
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  storeLocalStorageTodoJson = async (todo) => {
+    try {
+      const todoString = JSON.stringify(todo);
+      await AsyncStorage.setItem(TODO_KEY, todoString);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   onAddItem = () => {
     const title = this.state.inputText;
-    if ((title = '')) {
+    if (title === '') {
       return;
     }
     const index = this.state.currentIndex + 1;
-    const newTodo = {index: index, title: title, done: false};
+    const newTodo = {index, title, done: false};
     const todo = [...this.state.todo, newTodo];
     this.setState({
-      todo: todo,
+      todo,
       currentIndex: index,
       inputText: '',
     });
+    this.storeLocalStorageTodoJson(todo);
   };
+
   render() {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding">
@@ -55,12 +89,12 @@ export default class App extends React.Component {
           <TextInput
             onChangeText={(text) => this.setState({inputText: text})}
             value={this.state.inputText}
+            placeholder="todo名"
             style={styles.inputText}
           />
           <Button
             onPress={this.onAddItem}
             title="Add"
-            color="#841584"
             style={styles.inputButton}
           />
         </View>
@@ -91,5 +125,6 @@ const styles = StyleSheet.create({
   },
   inputButton: {
     width: 100,
+    color: '#841584',
   },
 });
