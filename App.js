@@ -11,12 +11,25 @@ import {
   Button,
   KeyboardAvoidingView,
   AsyncStorage,
+  TouchableOpacity,
 } from 'react-native';
 
 // 実行するOSによってpaddingTopの値を調整
 const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight;
 
 const TODO_KEY = '@todoapp.todo';
+
+const TodoItem = (props) => {
+  let textStyle = styles.TodoItem;
+  if (props.done === true) {
+    textStyle = styles.todoItemDone;
+  }
+  return (
+    <TouchableOpacity onPress={props.onTapTodoItem}>
+      <Text style={textStyle}>{props.title}</Text>
+    </TouchableOpacity>
+  );
+};
 
 // TODO表示用クラス
 export default class App extends React.Component {
@@ -73,6 +86,15 @@ export default class App extends React.Component {
     this.storeLocalStorageTodoJson(todo);
   };
 
+  onTapTodoItem = (todoItem) => {
+    const todo = this.state.todo;
+    const index = todo.indexOf(todoItem);
+    todoItem.done = !todoItem.done;
+    todo[index] = todoItem;
+    this.setState({todo});
+    this.saveTodo(todo);
+  };
+
   // HACK: コンポーネント分割するべき?
   render() {
     const filterText = this.state.filterText;
@@ -91,9 +113,17 @@ export default class App extends React.Component {
           />
         </View>
         <ScrollView style={styles.todolist}>
+          {/* NOTE: extraDataはsetStateした時に再描画されるようにするもの */}
           <FlatList
             data={todo}
-            renderItem={({item}) => <Text>{item.title}</Text>}
+            extraData={this.state}
+            renderItem={({item}) => (
+              <TodoItem
+                title={item.title}
+                done={item.done}
+                onTapTodoItem={() => this.onTapTodoItem}
+              />
+            )}
             keyExtractor={(item, index) => 'todo_' + item.index}
           />
         </ScrollView>
