@@ -68,10 +68,12 @@ export default class App extends React.Component {
       todo,
       currentIndex: index,
       inputText: '',
+      filterText: '',
     });
     this.storeLocalStorageTodoJson(todo);
   };
 
+  // HACK: コンポーネント分割するべき
   render() {
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding">
