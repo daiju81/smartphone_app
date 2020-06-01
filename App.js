@@ -1,6 +1,7 @@
 import React from 'react';
+import FilterTodo from './FilterTodo.js';
+import {styles} from './Styles.js';
 import {
-  StyleSheet,
   Text,
   View,
   StatusBar,
@@ -13,9 +14,6 @@ import {
   AsyncStorage,
   TouchableOpacity,
 } from 'react-native';
-
-// 実行するOSによってpaddingTopの値を調整
-const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBar.currentHeight;
 
 const TODO_KEY = '@todoapp.todo';
 
@@ -95,23 +93,25 @@ export default class App extends React.Component {
     this.saveTodo(todo);
   };
 
+  setFilterText = (filterTextValue) => {
+    this.setState({filterText: filterTextValue});
+  };
+
   // HACK: コンポーネント分割するべき?
   render() {
     const filterText = this.state.filterText;
     let todo = this.state.todo;
     if (filterText !== '') {
-      todo = todo.filter((t) => t.title.includes(filterText));
+      todo = todo.filter((todoItem) => todoItem.title.includes(filterText));
     }
     return (
       <KeyboardAvoidingView style={styles.container} behavior="padding">
-        <View style={styles.filter}>
-          <TextInput
-            onChangeText={(text) => this.setState({filterText: text})}
-            value={this.state.filterText}
-            style={styles.inputText}
-            placeholder="Type filter text"
-          />
-        </View>
+        <FilterTodo
+          stylesFilter={styles.filter}
+          stylesInputText={styles.inputText}
+          ChangeText={this.setFilterText}
+          value={this.state.filterText}
+        />
         <ScrollView style={styles.todolist}>
           {/* NOTE: extraDataはsetStateした時に再描画されるようにするもの */}
           <FlatList
@@ -145,28 +145,48 @@ export default class App extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: STATUSBAR_HEIGHT,
-  },
-  filter: {
-    paddingTop: 20,
-    height: 50,
-  },
-  todolist: {
-    flex: 1,
-  },
-  input: {
-    height: 50,
-    flexDirection: 'row',
-  },
-  inputText: {
-    flex: 1,
-  },
-  inputButton: {
-    width: 100,
-    color: '#841584',
-  },
-});
+// class FilterTodo extends React.Component {
+//   constructor(props) {
+//     super(props);
+//   }
+//   render() {
+//     return (
+//       <React.Fragment>
+//         <View style={styles.filter}>
+//           <TextInput
+//             onChangeText={(text) => this.props.ChangeText(text)}
+//             value={this.props.value}
+//             style={styles.inputText}
+//             placeholder="Type filter text"
+//           />
+//         </View>
+//       </React.Fragment>
+//     );
+//   }
+// }
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: '#fff',
+//     paddingTop: STATUSBAR_HEIGHT,
+//   },
+//   filter: {
+//     paddingTop: 20,
+//     height: 50,
+//   },
+//   todolist: {
+//     flex: 1,
+//   },
+//   input: {
+//     height: 50,
+//     flexDirection: 'row',
+//   },
+//   inputText: {
+//     flex: 1,
+//   },
+//   inputButton: {
+//     width: 100,
+//     color: '#841584',
+//   },
+// });
