@@ -4,8 +4,6 @@ import {styles} from './Styles.js';
 import {
   Text,
   View,
-  StatusBar,
-  Platform,
   ScrollView,
   FlatList,
   TextInput,
@@ -127,6 +125,7 @@ export default class App extends React.Component {
             keyExtractor={(item, index) => 'todo_' + item.index}
           />
         </ScrollView>
+        {/* <inputText /> */}
         <View style={styles.input}>
           <TextInput
             onChangeText={(text) => this.setState({inputText: text})}
