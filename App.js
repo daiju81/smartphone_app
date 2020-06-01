@@ -1,6 +1,7 @@
 import React from 'react';
 import FilterTodo from './FilterTodo.js';
 import InputTextComponent from './InputTextComponent.js';
+import TodoLists from './TodoLists.js';
 import {styles} from './Styles.js';
 import {
   Text,
@@ -11,21 +12,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+// localStorage保存用のkey
 const TODO_KEY = '@todoapp.todo';
 
-const TodoItem = (props) => {
-  let textStyle = styles.TodoItem;
-  if (props.done === true) {
-    textStyle = styles.todoItemDone;
-  }
-  return (
-    <TouchableOpacity onPress={props.onTapTodoItem}>
-      <Text style={textStyle}>{props.title}</Text>
-    </TouchableOpacity>
-  );
-};
-
-// TODO表示用クラス
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -94,7 +83,6 @@ export default class App extends React.Component {
 
   setChangeText = (text) => this.setState({inputText: text});
 
-  // HACK: コンポーネント分割するべき?
   render() {
     const filterText = this.state.filterText;
     let todo = this.state.todo;
@@ -110,8 +98,14 @@ export default class App extends React.Component {
           value={this.state.filterText}
         />
         <ScrollView style={styles.todolist}>
+          <TodoLists
+            dataArg={todo}
+            extraDataArg={this.state}
+            onTapTodoItemArg={this.onTapTodoItem}
+            stylesArg={styles}
+          />
           {/* NOTE: extraDataはsetStateした時に再描画されるようにするもの */}
-          <FlatList
+          {/* <FlatList
             data={todo}
             extraData={this.state}
             renderItem={({item}) => (
@@ -122,7 +116,7 @@ export default class App extends React.Component {
               />
             )}
             keyExtractor={(item, index) => 'todo_' + item.index}
-          />
+          /> */}
         </ScrollView>
         <InputTextComponent
           styles={styles}
