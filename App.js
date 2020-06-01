@@ -1,13 +1,11 @@
 import React from 'react';
 import FilterTodo from './FilterTodo.js';
+import InputTextComponent from './InputTextComponent.js';
 import {styles} from './Styles.js';
 import {
   Text,
-  View,
   ScrollView,
   FlatList,
-  TextInput,
-  Button,
   KeyboardAvoidingView,
   AsyncStorage,
   TouchableOpacity,
@@ -45,7 +43,6 @@ export default class App extends React.Component {
   fetchLocalStorageTodo = async () => {
     try {
       const todoString = await AsyncStorage.getItem(TODO_KEY);
-      console.log(`todo文字列 ${todoString}`);
       if (todoString) {
         const todo = JSON.parse(todoString);
         const currentIndex = todo.length;
@@ -95,6 +92,8 @@ export default class App extends React.Component {
     this.setState({filterText: filterTextValue});
   };
 
+  setChangeText = (text) => this.setState({inputText: text});
+
   // HACK: コンポーネント分割するべき?
   render() {
     const filterText = this.state.filterText;
@@ -125,67 +124,13 @@ export default class App extends React.Component {
             keyExtractor={(item, index) => 'todo_' + item.index}
           />
         </ScrollView>
-        {/* <inputText /> */}
-        <View style={styles.input}>
-          <TextInput
-            onChangeText={(text) => this.setState({inputText: text})}
-            value={this.state.inputText}
-            placeholder="todo名"
-            style={styles.inputText}
-          />
-          <Button
-            onPress={this.onAddItem}
-            title="Add"
-            style={styles.inputButton}
-          />
-        </View>
+        <InputTextComponent
+          styles={styles}
+          inputText={this.state.inputText}
+          setChangeText={this.setChangeText}
+          onAddItem={this.onAddItem}
+        />
       </KeyboardAvoidingView>
     );
   }
 }
-
-// class FilterTodo extends React.Component {
-//   constructor(props) {
-//     super(props);
-//   }
-//   render() {
-//     return (
-//       <React.Fragment>
-//         <View style={styles.filter}>
-//           <TextInput
-//             onChangeText={(text) => this.props.ChangeText(text)}
-//             value={this.props.value}
-//             style={styles.inputText}
-//             placeholder="Type filter text"
-//           />
-//         </View>
-//       </React.Fragment>
-//     );
-//   }
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: '#fff',
-//     paddingTop: STATUSBAR_HEIGHT,
-//   },
-//   filter: {
-//     paddingTop: 20,
-//     height: 50,
-//   },
-//   todolist: {
-//     flex: 1,
-//   },
-//   input: {
-//     height: 50,
-//     flexDirection: 'row',
-//   },
-//   inputText: {
-//     flex: 1,
-//   },
-//   inputButton: {
-//     width: 100,
-//     color: '#841584',
-//   },
-// });
